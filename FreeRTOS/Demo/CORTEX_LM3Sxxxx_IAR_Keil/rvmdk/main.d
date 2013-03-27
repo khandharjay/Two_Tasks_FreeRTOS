@@ -23,7 +23,5 @@
 .\rvmdk\main.o: .\..\Common\drivers\LuminaryMicro\interrupt.h
 .\rvmdk\main.o: .\..\Common\drivers\LuminaryMicro\timer.h
 .\rvmdk\main.o: ..\Common\include\integer.h
-.\rvmdk\main.o: ..\Common\include\flash.h
 .\rvmdk\main.o: lcd_message.h
 .\rvmdk\main.o: bitmap.h
-.\rvmdk\main.o: ..\Common\include\GenQTest.h

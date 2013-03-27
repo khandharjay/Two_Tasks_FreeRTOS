@@ -1,21 +1,79 @@
+/*
+    FreeRTOS V7.3.0 - Copyright (C) 2012 Real Time Engineers Ltd.
+
+    FEATURES AND PORTS ARE ADDED TO FREERTOS ALL THE TIME.  PLEASE VISIT 
+    http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+
+    ***************************************************************************
+     *                                                                       *
+     *    FreeRTOS tutorial books are available in pdf and paperback.        *
+     *    Complete, revised, and edited pdf reference manuals are also       *
+     *    available.                                                         *
+     *                                                                       *
+     *    Purchasing FreeRTOS documentation will not only help you, by       *
+     *    ensuring you get running as quickly as possible and with an        *
+     *    in-depth knowledge of how to use FreeRTOS, it will also help       *
+     *    the FreeRTOS project to continue with its mission of providing     *
+     *    professional grade, cross platform, de facto standard solutions    *
+     *    for microcontrollers - completely free of charge!                  *
+     *                                                                       *
+     *    >>> See http://www.FreeRTOS.org/Documentation for details. <<<     *
+     *                                                                       *
+     *    Thank you for using FreeRTOS, and thank you for your support!      *
+     *                                                                       *
+    ***************************************************************************
+
+
+    This file is part of the FreeRTOS distribution.
+
+    FreeRTOS is free software; you can redistribute it and/or modify it under
+    the terms of the GNU General Public License (version 2) as published by the
+    Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
+    >>>NOTE<<< The modification to the GPL is included to allow you to
+    distribute a combined work that includes FreeRTOS without being obliged to
+    provide the source code for proprietary components outside of the FreeRTOS
+    kernel.  FreeRTOS is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+    more details. You should have received a copy of the GNU General Public
+    License and the FreeRTOS license exception along with FreeRTOS; if not it
+    can be viewed here: http://www.freertos.org/a00114.html and also obtained
+    by writing to Richard Barry, contact details for whom are available on the
+    FreeRTOS WEB site.
+
+    1 tab == 4 spaces!
+    
+    ***************************************************************************
+     *                                                                       *
+     *    Having a problem?  Start by reading the FAQ "My application does   *
+     *    not run, what could be wrong?"                                     *
+     *                                                                       *
+     *    http://www.FreeRTOS.org/FAQHelp.html                               *
+     *                                                                       *
+    ***************************************************************************
+
+    
+    http://www.FreeRTOS.org - Documentation, training, latest versions, license 
+    and contact details.  
+    
+    http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+    including FreeRTOS+Trace - an indispensable productivity tool.
+
+    Real Time Engineers ltd license FreeRTOS to High Integrity Systems, who sell 
+    the code with commercial support, indemnification, and middleware, under 
+    the OpenRTOS brand: http://www.OpenRTOS.com.  High Integrity Systems also
+    provide a safety engineered and independently SIL3 certified version under 
+    the SafeRTOS brand: http://www.SafeRTOS.com.
+*/
 
 
 
 
 
 
-/*************************************************************************
- * Please ensure to read http://www.freertos.org/portlm3sx965.html
- * which provides information on configuring and running this demo for the
- * various Luminary Micro EKs.
- *************************************************************************/
 
-/* Set the following option to 1 to include the WEB server in the build.  By
-default the WEB server is excluded to keep the compiled code size under the 32K
-limit imposed by the KickStart version of the IAR compiler.  The graphics
-libraries take up a lot of ROM space, hence including the graphics libraries
-and the TCP/IP stack together cannot be accommodated with the 32K size limit. */
-#define mainINCLUDE_WEB_SERVER		1
+
+
 
 
 /* Standard includes. */
@@ -41,30 +99,18 @@ and the TCP/IP stack together cannot be accommodated with the 32K size limit. */
 #include "interrupt.h"
 #include "timer.h"
 
-/* Demo app includes. */
-//#include "BlockQ.h"
-//#include "death.h"
+/* Application Code includes. */
+
 #include "integer.h"
-//#include "blocktim.h"
-#include "flash.h"
-//#include "partest.h"
-//#include "semtest.h"
-//#include "PollQ.h"
 #include "lcd_message.h"
 #include "bitmap.h"
-#include "GenQTest.h"
-//#include "QPeek.h"
-//#include "recmutex.h"
-//#include "IntQueue.h"
+
 
 /*-----------------------------------------------------------*/
 
-/* The time between cycles of the 'check' functionality (defined within the
-tick hook. */
-#define mainCHECK_DELAY						( ( portTickType ) 5000 / portTICK_RATE_MS )
 
-/* Size of the stack allocated to the uIP task. */
-#define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 3 )
+// Some #defines used in the application code
+
 
 /* The OLED task uses the sprintf function so requires a little more stack too. */
 #define mainOLED_TASK_STACK_SIZE			( configMINIMAL_STACK_SIZE + 50 )
@@ -95,11 +141,7 @@ the jitter time in nano seconds. */
 
 /*-----------------------------------------------------------*/
 
-/*
- * The task that handles the uIP stack.  All TCP/IP processing is performed in
- * this task.
- */
-extern void vuIP_Task( void *pvParameters );
+
 
 /*
  * The display is written two by more than one task so is controlled by a
@@ -113,21 +155,17 @@ static void vOLED_Print_Task( void *pvParameters );
 
 
 /*
- * Configure the hardware for the demo.
+ * Configure the hardware.
  */
 static void prvSetupHardware( void );
 
-/*
- * Configures the high frequency timers - those used to measure the timing
- * jitter while the real time kernel is executing.
- */
-extern void vSetupHighFrequencyTimer( void );
+
 
 /*
  * Hook functions that can get called by the kernel.
  */
-void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName );
-void vApplicationTickHook( void );
+//void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName );
+//void vApplicationTickHook( void );
 
 
 /* The queue used to send messages to the OLED task. */
@@ -136,7 +174,7 @@ xQueueHandle xOLEDQueue;
 /* The welcome text. */
 const portCHAR * const pcWelcomeMessage = "   www.FreeRTOS.org";
 
-int set_up_LCD=0;
+
 
 /*-----------------------------------------------------------*/
 
@@ -148,11 +186,11 @@ int set_up_LCD=0;
 int main( void )
 {
 	
-	prvSetupHardware();
+	prvSetupHardware();      //Setup Hardware
 	
-	timer_init();
+	timer_init();            //Initializes Timer0
 	uart_init();
-	//uart_send("test",4);
+	
 
  /* Create the queue used by the OLED task.  Messages for display on the OLED
 	are received via this queue. */
@@ -178,7 +216,7 @@ int main( void )
 
   /* Will only get here if there was insufficient memory to create the idle
     task. */
-	return 0;
+	 return 0;
 }
 /*-----------------------------------------------------------*/
 
@@ -191,17 +229,17 @@ void prvSetupHardware( void )
         SysCtlLDOSet( SYSCTL_LDO_2_75V );
     }
 	
-	/* Set the clocking to run from the PLL at 50 MHz */
-	SysCtlClockSet( SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_8MHZ );
+	  /* Set the clocking to run from the PLL at 50 MHz */
+	  SysCtlClockSet( SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_8MHZ );
 	
-	/* 	Enable Port F for Ethernet LEDs
+	  /* 	Enable Port F for Ethernet LEDs
 		LED0        Bit 3   Output
 		LED1        Bit 2   Output */
-	SysCtlPeripheralEnable( SYSCTL_PERIPH_GPIOF );
-	GPIODirModeSet( GPIO_PORTF_BASE, (GPIO_PIN_2 | GPIO_PIN_3), GPIO_DIR_MODE_HW );
-	GPIOPadConfigSet( GPIO_PORTF_BASE, (GPIO_PIN_2 | GPIO_PIN_3 ), GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD );	
+	  SysCtlPeripheralEnable( SYSCTL_PERIPH_GPIOF );
+	  GPIODirModeSet( GPIO_PORTF_BASE, (GPIO_PIN_2 | GPIO_PIN_3), GPIO_DIR_MODE_HW );
+	  GPIOPadConfigSet( GPIO_PORTF_BASE, (GPIO_PIN_2 | GPIO_PIN_3 ), GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD );	
 	
-	//vParTestInitialise();
+	
 }
 
 /*-----------------------------------------------------------*/
@@ -222,7 +260,7 @@ void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTask
 
 	for( ;; );
 }
-
+/*-----------------------------------------------------------*/
 void vOLEDTask( void *pvParameters )
 {
 xOLEDMessage xMessage;
@@ -336,5 +374,5 @@ void vOLED_Print_Task( void *pvParameters )
 		}
  }
 
-
+/*-----------------------------------------------------------*/
 
